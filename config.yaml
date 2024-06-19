@@ -1,0 +1,92 @@
+extensions:
+  basicauth:
+    client_auth:
+      username: "873982"
+      password: ""
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+
+exporters:
+  otlphttp:
+    endpoint: https://otlp-gateway-prod-us-east-0.grafana.net/otlp
+    auth:
+      authenticator: basicauth
+
+service:
+  extensions: [ basicauth ]
+  pipelines:
+    traces:
+      receivers:  [ otlp ]
+      processors: [  ]
+      exporters:  [ otlphttp ]
+    logs:
+      receivers:  [ otlp ]
+      processors: [  ]
+      exporters:  [ otlphttp ]
+    metrics:
+      receivers:  [ otlp ]
+      processors: [  ]
+      exporters:  [ otlphttp ]
+
+
+###############
+# extensions:
+#   basicauth/grafana_cloud:
+#     client_auth:
+#       username: "873982"
+#       password: ""
+
+# receivers:
+#   otlp:
+#     protocols:
+#       grpc:
+#       http:
+#   hostmetrics:
+#     scrapers:
+#       load:
+#       memory:
+
+# processors:
+#   batch:
+#   resourcedetection:
+#     detectors: ["env", "system"]
+#     override: false
+#   transform/add_resource_attributes_as_metric_attributes:
+#     error_mode: ignore
+#     metric_statements:
+#       - context: datapoint
+#         statements:
+#           - set(attributes["deployment.environment"], resource.attributes["deployment.environment"])
+#           - set(attributes["service.version"], resource.attributes["service.version"])
+
+# exporters:
+#   otlp/grafana_cloud:
+#     endpoint: "otlp-gateway-prod-us-east-0.grafana.net:443"
+#     # add_metric_suffixes: false
+#     auth:
+#       authenticator: basicauth/grafana_cloud
+#   logging/metrics:
+#     verbosity: detailed
+#   logging/traces:
+#     verbosity: detailed
+#   logging/logs:
+#     verbosity: detailed
+
+# service:
+#   extensions: [basicauth/grafana_cloud]
+#   pipelines:
+#     traces:
+#       receivers: [otlp]
+#       processors: [resourcedetection, batch]
+#       exporters: [otlp/grafana_cloud, logging/traces]
+#     metrics:
+#       receivers: [otlp, hostmetrics]
+#       processors: [resourcedetection, transform/add_resource_attributes_as_metric_attributes, batch]
+#       exporters: [otlp/grafana_cloud, logging/metrics]
+#     logs:
+#       receivers: [otlp]
+#       processors: [resourcedetection, batch]
+#       exporters: [otlp/grafana_cloud, logging/logs]
